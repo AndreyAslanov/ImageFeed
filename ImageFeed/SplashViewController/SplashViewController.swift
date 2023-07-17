@@ -6,20 +6,30 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class SplashViewController: UIViewController {
     private let ShowAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     
     private let oauth2Service = OAuth2Service()
     private let oauth2TokenStorage = OAuth2TokenStorage()
+    private let profileService = ProfileService.shared
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         if let token = oauth2TokenStorage.token {
-            switchToTabBarController()
+            print("токен есть")
+            profileService.fetchProfile(token) { result in
+                switch result {
+                case .success:
+                    self.switchToTabBarController()
+                case .failure(let error):
+                    // Обработка ошибки при вызове fetchProfile
+                    print("Ошибка при вызове fetchProfile: \(error)")
+                }
+            }
         } else {
-            // Show Auth Screen
             performSegue(withIdentifier: ShowAuthenticationScreenSegueIdentifier, sender: nil)
         }
     }
@@ -39,6 +49,22 @@ final class SplashViewController: UIViewController {
             .instantiateViewController(withIdentifier: "TabBarViewController")
         window.rootViewController = tabBarController
     }
+    
+//    private func fetchProfile(token: String, completion: @escaping (Result<Void, Error>) -> Void) {
+//        profileService.fetchProfile(token) { [weak self] result in
+//            guard let self = self else { return }
+//            switch result {
+//            case .success:
+//                UIBlockingProgressHUD.dismiss()
+//                print("ПрогрессХуд.дисмисс")
+//                self.switchToTabBarController()
+//            case .failure:
+//                UIBlockingProgressHUD.dismiss()
+//                print("ПрогрессХуд.дисмисс")
+//                break
+//            }
+//        }
+//    }
 }
 
 extension SplashViewController {
@@ -59,21 +85,34 @@ extension SplashViewController: AuthViewControllerDelegate {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
+            UIBlockingProgressHUD.show()
+            print("ПрогрессХуд.шоу")
             self.fetchOAuthToken(code)
         }
     }
-
+    
     private func fetchOAuthToken(_ code: String) {
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
-                self.switchToTabBarController()
+                profileService.fetchProfile(code) { result in
+                    switch result {
+                    case .success:
+                        self.switchToTabBarController()
+                        UIBlockingProgressHUD.dismiss()
+                        print("ПрогрессХуд.дисмисс")
+                    case .failure:
+                        UIBlockingProgressHUD.dismiss()
+                        print("ПрогрессХуд.дисмисс")
+                        break
+                    }
+                }
             case .failure:
-                // TODO [Sprint 11]
+                UIBlockingProgressHUD.dismiss()
+                print("ПрогрессХуд.дисмисс")
                 break
             }
         }
     }
 }
-

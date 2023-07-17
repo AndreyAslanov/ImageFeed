@@ -15,6 +15,9 @@
 		E7195CF72A2376D400267FBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E7195CF52A2376D400267FBF /* Main.storyboard */; };
 		E7195CF92A2376D500267FBF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7195CF82A2376D500267FBF /* Assets.xcassets */; };
 		E7195CFC2A2376D500267FBF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E7195CFA2A2376D500267FBF /* LaunchScreen.storyboard */; };
+		E71D6EBD2A62B13800E05902 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71D6EBC2A62B13800E05902 /* ProfileService.swift */; };
+		E71F984A2A5D7E4E00A5698B /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = E71F98492A5D7E4E00A5698B /* ProgressHUD */; };
+		E71F984D2A5EDCEB00A5698B /* UIBlockingProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71F984C2A5EDCEB00A5698B /* UIBlockingProgressHUD.swift */; };
 		E72E6EC42A5990330082DCA7 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E6EC32A5990330082DCA7 /* SplashViewController.swift */; };
 		E7380DE52A460C6D008F8040 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7380DE42A460C6D008F8040 /* Constants.swift */; };
 		E7380DEA2A4716BB008F8040 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7380DE92A4716BB008F8040 /* AuthViewController.swift */; };
@@ -35,6 +38,8 @@
 		E7195CF82A2376D500267FBF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E7195CFB2A2376D500267FBF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E7195CFD2A2376D500267FBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E71D6EBC2A62B13800E05902 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
+		E71F984C2A5EDCEB00A5698B /* UIBlockingProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBlockingProgressHUD.swift; sourceTree = "<group>"; };
 		E72E6EC32A5990330082DCA7 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		E7380DE42A460C6D008F8040 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		E7380DE92A4716BB008F8040 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
@@ -49,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E71F984A2A5D7E4E00A5698B /* ProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				E72E6EC32A5990330082DCA7 /* SplashViewController.swift */,
+				E71F984C2A5EDCEB00A5698B /* UIBlockingProgressHUD.swift */,
 			);
 			path = SplashViewController;
 			sourceTree = "<group>";
@@ -129,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				E760D9152A36512F00D74934 /* ProfileViewController.swift */,
+				E71D6EBC2A62B13800E05902 /* ProfileService.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -166,6 +174,9 @@
 			dependencies = (
 			);
 			name = ImageFeed;
+			packageProductDependencies = (
+				E71F98492A5D7E4E00A5698B /* ProgressHUD */,
+			);
 			productName = ImageFeed;
 			productReference = E7195CEC2A2376D400267FBF /* ImageFeed.app */;
 			productType = "com.apple.product-type.application";
@@ -194,6 +205,9 @@
 				Base,
 			);
 			mainGroup = E7195CE32A2376D400267FBF;
+			packageReferences = (
+				E71F98482A5D7E4E00A5698B /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+			);
 			productRefGroup = E7195CED2A2376D400267FBF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -227,12 +241,14 @@
 				E72E6EC42A5990330082DCA7 /* SplashViewController.swift in Sources */,
 				E7195CF02A2376D400267FBF /* AppDelegate.swift in Sources */,
 				E716B04C2A51C72E00E4A125 /* OAuth2TokenStorage.swift in Sources */,
+				E71F984D2A5EDCEB00A5698B /* UIBlockingProgressHUD.swift in Sources */,
 				E7380DEA2A4716BB008F8040 /* AuthViewController.swift in Sources */,
 				E7380DE52A460C6D008F8040 /* Constants.swift in Sources */,
 				E7F495022A37679A00E8DC20 /* SingleImageViewController.swift in Sources */,
 				E7380DED2A4729DF008F8040 /* WebViewViewController.swift in Sources */,
 				E716B04A2A51C66A00E4A125 /* OAuth2Service.swift in Sources */,
 				E7195CF22A2376D400267FBF /* SceneDelegate.swift in Sources */,
+				E71D6EBD2A62B13800E05902 /* ProfileService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +474,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E71F98482A5D7E4E00A5698B /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/relatedcode/ProgressHUD";
+			requirement = {
+				kind = exactVersion;
+				version = 13.7.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E71F98492A5D7E4E00A5698B /* ProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E71F98482A5D7E4E00A5698B /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E7195CE42A2376D400267FBF /* Project object */;
 }

@@ -8,10 +8,6 @@
 import UIKit
 
 final class ProfileViewController: UIViewController {
-    private let label: UILabel = {
-        let label = UILabel()
-        return label
-    }()
     
     private let blackView = UIView()
     private let profileImage = UIImage()
@@ -21,11 +17,25 @@ final class ProfileViewController: UIViewController {
     private let descriptionLabel = UILabel()
     private let avatarImageView = UIImageView()
     
+    private let profileService = ProfileService.shared
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupViews()
         setupConstraints()
+//        fetchProfile()
+        updateProfileDetails(profile: profileService.profile)
+    }
+    
+    private func updateProfileDetails(profile: ProfileService.Profile?){
+        if let profile = profile{
+            nameLabel.text = profile.name
+            loginNameLabel.text = profile.loginName
+            descriptionLabel.text = profile.bio
+        } else {
+            print("Ошибка: Значение profile равно nil")
+        }
     }
     
     private func setupViews() {
@@ -105,5 +115,26 @@ final class ProfileViewController: UIViewController {
             }
         }
     }
+    
+//    private func fetchProfile() {
+//        if let token = OAuth2TokenStorage.shared.token {
+//            profileService.fetchProfile(token) { [weak self] result in
+//                switch result {
+//                case .success(let profile):
+//                    DispatchQueue.main.async {
+//                        self?.nameLabel.text = profile.name
+//                        self?.loginNameLabel.text = profile.loginName
+//                        self?.descriptionLabel.text = profile.bio
+//                    }
+//                case .failure(let error):
+//                    // Обработка ошибки при получении профиля
+//                    print("Failed to fetch profile: \(error)")
+//                }
+//            }
+//        } else {
+//            // Обработка отсутствия токена
+//            print("Token is missing")
+//        }
+//    }
 }
 
