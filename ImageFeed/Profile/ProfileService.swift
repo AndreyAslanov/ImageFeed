@@ -10,62 +10,71 @@ import Foundation
 final class ProfileService{
     static let shared = ProfileService()
     private let urlSession = URLSession.shared
-    
     private var task: URLSessionTask?
     private(set) var profile: Profile?
     
     struct ProfileResult: Codable{
-        let username: String?
-        let first_name: String?
-        let last_name: String?
+        let userName: String?
+        let firstName: String?
+        let lastName: String?
         let bio: String?
+        let profileImage: ProfileImage?
+        
+        private enum CodingKeys: String, CodingKey {
+            case userName = "username"
+            case firstName = "first_name"
+            case lastName = "last_name"
+            case bio
+            case profileImage = "profile_image"
+        }
+    }
+    
+    struct ProfileImage: Codable {
+        let small: String?
+        let medium: String?
+        let large: String?
     }
     
     struct Profile{
-        let username: String
-        let name: String
-        let loginName: String
-        let bio: String
+        let userName: String?
+        let name: String?
+        let loginName: String?
+        let bio: String?
     }
     
-    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void){
+    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
+        task?.cancel()
         if task != nil {
-                    return
-            }
-        let request = profileRequest(token: token)
-        let task = urlSession.data(for: request) { [weak self] result in
-            guard let self = self else { return }
-                    
-            switch result {
-            case .success(let data):
-                do {
-                    print("все ок")
-                    let decoder = JSONDecoder()
-                    let responseObject = try decoder.decode(ProfileResult.self, from: data)
-                    let profile = self.buildProfile(from: responseObject)
-                    self.profile = profile
-                    completion(.success(profile))
-                    print("все ок 2")
-                } catch {
-                    completion(.failure(error))
-                }
+            return
+        }
+        guard let request = profileRequest(token:token) else {
+            assertionFailure("Invalid request")
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        let task = urlSession.objectTask(for:request) {[weak self] (response:Result<ProfileResult, Error>) in
+            self?.task = nil
+            switch response {
+            case .success(let profileResult):
+                let profile = Profile(userName: profileResult.userName,
+                                      name: profileResult.firstName,
+                                      loginName: profileResult.lastName,
+                                      bio: profileResult.bio)
+                completion(.success(profile))
             case .failure(let error):
                 completion(.failure(error))
             }
-                    
-            self.task = nil
         }
-                
         self.task = task
         task.resume()
     }
     
     private func buildProfile(from result: ProfileResult) -> Profile {
-        let name = "\(result.first_name ?? "") \(result.last_name ?? "")"
-        let loginName = "@\(result.username ?? "")"
+        let name = "\(result.firstName ?? "") \(result.lastName ?? "")"
+        let loginName = "@\(result.userName ?? "")"
         
         let profile = Profile(
-            username: result.username ?? "",
+            userName: result.userName ?? "",
             name: name,
             loginName: loginName,
             bio: result.bio ?? ""
@@ -74,8 +83,10 @@ final class ProfileService{
         return profile
     }
     
-    private func profileRequest(token: String) -> URLRequest {
-        let url = URL(string: "https://api.unsplash.com")!
+    private func profileRequest(token: String) -> URLRequest? {
+        guard let url = URL(string: "https://api.unsplash.com/me") else {
+            return nil
+        }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

@@ -33,7 +33,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         OAuth2Service.shared.fetchOAuthToken(code) { [weak self] result in
             
-            print ("код\(code)")                                                                    //2
+            print ("код\(code)")                                                                    //принт
             guard let self = self else { return }
 
             switch result {
@@ -48,7 +48,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 self.delegate?.authViewController(self, didAuthenticateWithCode: code)
             }
         }
-//        delegate?.authViewController(self, didAuthenticateWithCode: code)
+//        delegate?.authViewController(self, didAuthenticateWithCode: code)              не знаю оставить или удалить
     }
 
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {

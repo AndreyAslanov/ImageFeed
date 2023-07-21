@@ -8,25 +8,27 @@
 import UIKit
 import ProgressHUD
 
+
 final class SplashViewController: UIViewController {
     private let ShowAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-    
     private let oauth2Service = OAuth2Service()
     private let oauth2TokenStorage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
+    private let alertPresenter = AlertPresenter()
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("вьюДидАпир")
         
         if let token = oauth2TokenStorage.token {
-            print("токен есть")
+//            switchToTabBarController()                                не знаю оставить или удалить
             profileService.fetchProfile(token) { result in
                 switch result {
                 case .success:
                     self.switchToTabBarController()
+                    print("Данные загрузились")
                 case .failure(let error):
-                    // Обработка ошибки при вызове fetchProfile
-                    print("Ошибка при вызове fetchProfile: \(error)")
+                    self.showErrorAlert(error: error)
                 }
             }
         } else {
@@ -50,28 +52,16 @@ final class SplashViewController: UIViewController {
         window.rootViewController = tabBarController
     }
     
-//    private func fetchProfile(token: String, completion: @escaping (Result<Void, Error>) -> Void) {
-//        profileService.fetchProfile(token) { [weak self] result in
-//            guard let self = self else { return }
-//            switch result {
-//            case .success:
-//                UIBlockingProgressHUD.dismiss()
-//                print("ПрогрессХуд.дисмисс")
-//                self.switchToTabBarController()
-//            case .failure:
-//                UIBlockingProgressHUD.dismiss()
-//                print("ПрогрессХуд.дисмисс")
-//                break
-//            }
-//        }
-//    }
+    private func showErrorAlert(error: Error) {
+        alertPresenter.showAlert(title: "Что-то пошло не так(", message: "Не удалось войти в систему, \(error.localizedDescription)"){ self.performSegue(withIdentifier: self.ShowAuthenticationScreenSegueIdentifier, sender: nil)
+        }
+    }
 }
 
 extension SplashViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == ShowAuthenticationScreenSegueIdentifier {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
+            guard let navigationController = segue.destination as? UINavigationController,
                 let viewController = navigationController.viewControllers[0] as? AuthViewController
             else { fatalError("Failed to prepare for \(ShowAuthenticationScreenSegueIdentifier)") }
             viewController.delegate = self

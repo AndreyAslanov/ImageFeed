@@ -6,26 +6,52 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
     private let blackView = UIView()
-    private let profileImage = UIImage()
+    private let profileImage = UIImage(named:"Avatar")
     private let logoutButton = UIButton()
     private let nameLabel = UILabel()
     private let loginNameLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let avatarImageView = UIImageView()
-    
     private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupViews()
         setupConstraints()
-//        fetchProfile()
-        updateProfileDetails(profile: profileService.profile)
+
+//        updateProfileDetails(profile: profileService.profile)             Не знаю оставить или удалить 
+        
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        profileImageServiceObserver = NotificationCenter.default   
+            .addObserver(
+                forName: ProfileImageService.DidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImage = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImage)
+        else { return }
+        // TODO [Sprint 11] Обновить аватар, используя Kingfisher
+        avatarImageView.kf.setImage(with: url)
+        let placeholderImage = UIImage(named: "Photo")              // заменить на заглушку
+
+            avatarImageView.kf.setImage(with: url, placeholder: placeholderImage)
     }
     
     private func updateProfileDetails(profile: ProfileService.Profile?){
@@ -116,25 +142,10 @@ final class ProfileViewController: UIViewController {
         }
     }
     
-//    private func fetchProfile() {
-//        if let token = OAuth2TokenStorage.shared.token {
-//            profileService.fetchProfile(token) { [weak self] result in
-//                switch result {
-//                case .success(let profile):
-//                    DispatchQueue.main.async {
-//                        self?.nameLabel.text = profile.name
-//                        self?.loginNameLabel.text = profile.loginName
-//                        self?.descriptionLabel.text = profile.bio
-//                    }
-//                case .failure(let error):
-//                    // Обработка ошибки при получении профиля
-//                    print("Failed to fetch profile: \(error)")
-//                }
-//            }
-//        } else {
-//            // Обработка отсутствия токена
-//            print("Token is missing")
-//        }
-//    }
+    deinit {
+        if let observer = profileImageServiceObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
 }
 
