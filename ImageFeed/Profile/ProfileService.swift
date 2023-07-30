@@ -18,21 +18,13 @@ final class ProfileService{
         let firstName: String?
         let lastName: String?
         let bio: String?
-        let profileImage: ProfileImage?
         
         private enum CodingKeys: String, CodingKey {
             case userName = "username"
             case firstName = "first_name"
             case lastName = "last_name"
             case bio
-            case profileImage = "profile_image"
         }
-    }
-    
-    struct ProfileImage: Codable {
-        let small: String?
-        let medium: String?
-        let large: String?
     }
     
     struct Profile{
@@ -43,6 +35,7 @@ final class ProfileService{
     }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
+        print ("Передаю токен в fetchProfile: \(token)")
         task?.cancel()
         if task != nil {
             return
@@ -56,13 +49,19 @@ final class ProfileService{
             self?.task = nil
             switch response {
             case .success(let profileResult):
-                let profile = Profile(userName: profileResult.userName,
-                                      name: profileResult.firstName,
-                                      loginName: profileResult.lastName,
-                                      bio: profileResult.bio)
-                completion(.success(profile))
+                let profile = self?.buildProfile(from: profileResult) 
+                self?.profile = profile
+                
+                if let profile = profile {
+                    completion(.success(profile))
+                    print("Фото работает")
+                } else {
+                    completion(.failure(NetworkError.invalidResponse))
+                    print("Фото не работает")
+                }
             case .failure(let error):
                 completion(.failure(error))
+                print("Фото не работает 2")
             }
         }
         self.task = task
@@ -84,13 +83,14 @@ final class ProfileService{
     }
     
     private func profileRequest(token: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/me") else {
+        guard let url = URL(string: "https://api.unsplash.com/me") else {         
             return nil
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        print ("Получаю токен в profileRequest: \(token)")
         
         return request
     }

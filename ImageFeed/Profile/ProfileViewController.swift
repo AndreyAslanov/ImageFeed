@@ -12,7 +12,6 @@ final class ProfileViewController: UIViewController {
     
     private let blackView = UIView()
     private let profileImage = UIImage(named:"Avatar")
-    private let logoutButton = UIButton()
     private let nameLabel = UILabel()
     private let loginNameLabel = UILabel()
     private let descriptionLabel = UILabel()
@@ -20,13 +19,21 @@ final class ProfileViewController: UIViewController {
     private let profileService = ProfileService.shared
     private var profileImageServiceObserver: NSObjectProtocol?
     
+    private let logoutButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "logout_button")
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupViews()
         setupConstraints()
 
-//        updateProfileDetails(profile: profileService.profile)             Не знаю оставить или удалить 
+        updateProfileDetails(profile: profileService.profile)
         
         view.backgroundColor = UIColor(named: "YP Black")
         
@@ -43,18 +50,20 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatar() {
-        guard
-            let profileImage = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImage)
+        guard let profileImage = ProfileImageService.shared.avatarURL,
+              let url = URL(string: profileImage)
         else { return }
-        // TODO [Sprint 11] Обновить аватар, используя Kingfisher
+        let cache = ImageCache.default
+        cache.clearDiskCache()
         avatarImageView.kf.setImage(with: url)
-        let placeholderImage = UIImage(named: "Photo")              // заменить на заглушку
-
-            avatarImageView.kf.setImage(with: url, placeholder: placeholderImage)
+        let processor = RoundCornerImageProcessor(cornerRadius: 42)
+        
+        avatarImageView.kf.setImage(with: url,
+                                 placeholder: UIImage(named: "placeholder"),
+                                 options: [.processor(processor), .transition(.fade(1))])
     }
     
-    private func updateProfileDetails(profile: ProfileService.Profile?){
+    func updateProfileDetails(profile: ProfileService.Profile?){
         if let profile = profile{
             nameLabel.text = profile.name
             loginNameLabel.text = profile.loginName

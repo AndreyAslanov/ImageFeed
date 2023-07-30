@@ -13,20 +13,22 @@ final class OAuth2Service {
     private var task: URLSessionTask?
     private var lastCode: String?
     
+    private (set) var authToken: String? {
+        get {
+            return OAuth2TokenStorage().token
+        }
+        set {
+            OAuth2TokenStorage().token = newValue
+        }
+    }
+    
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
-        if task != nil {
-            if lastCode != code {
-                task?.cancel()
-            } else {
-                return
-            }
-        } else {
-            if lastCode == code {
-                return
-            }
-        }
+
+        if lastCode == code { return }
+        task?.cancel()
         lastCode = code
+        
         let request = authTokenRequest(code: code)
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             self?.task = nil
@@ -72,19 +74,15 @@ final class OAuth2Service {
         }
     }
 
-enum OAuth2Error: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
-}
-
 enum  NetworkError: Error {
     case decodingError(Error)
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError
     case invalidRequest
+    case invalidResponse
 }
+
 
 
 
