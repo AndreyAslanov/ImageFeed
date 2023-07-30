@@ -26,12 +26,12 @@ extension URLSession {
                             let result = try decoder.decode(T.self, from: data)
                             fulfillCompletion(.success(result))
                             
-                            if let responseDataString = String(data: data, encoding: .utf8) {
-                                print("Response Data:")
-                                print(responseDataString)
-                            } else {
-                                print("Unable to convert data to a UTF-8 string.")
-                            }
+//                            if let responseDataString = String(data: data, encoding: .utf8) {
+//                                print("Response Data:")
+//                                print(responseDataString)
+//                            } else {
+//                                print("Unable to convert data to a UTF-8 string.")
+//                            }
                             
                         } catch {
                             fulfillCompletion(.failure(NetworkError.decodingError(error)))

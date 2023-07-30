@@ -88,7 +88,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             switch result {
             case .success(let token):
                 oauth2TokenStorage.token = token
-                fetchProfile(token: token)
+                self.fetchProfile(token: token)
                 print ("Алерт. Успех")
             case .failure:
                 UIBlockingProgressHUD.dismiss()
