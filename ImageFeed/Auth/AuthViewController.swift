@@ -30,15 +30,17 @@ final class AuthViewController: UIViewController {
         super.viewDidLoad()
         navigationController?.navigationBar.barStyle = .black
 
-        authButton.layer.cornerRadius = 16
-        authButton.layer.masksToBounds = true
+//        authButton.layer.cornerRadius = 16
+//        authButton.layer.masksToBounds = true
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == webViewIdentifier {
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(webViewIdentifier)") }
+            else { assertionFailure("Failed to prepare for \(webViewIdentifier)")
+                return 
+            }
             print("делегат работает")
             webViewViewController.delegate = self
         } else {

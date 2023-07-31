@@ -28,8 +28,12 @@ final class OAuth2Service {
         if lastCode == code { return }
         task?.cancel()
         lastCode = code
+
+        guard let request = authTokenRequest(code: code) else {
+            assertionFailure("Failed to make request")
+            return
+        }
         
-        let request = authTokenRequest(code: code)
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             self?.task = nil
             switch result {
@@ -44,9 +48,36 @@ final class OAuth2Service {
         self.task = task
         task.resume()
     }
+//    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+//        assert(Thread.isMainThread)
+//
+//        if lastCode == code { return }
+//        task?.cancel()
+//        lastCode = code
+//
+//        let request = authTokenRequest(code: code)
+//        if let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+//            self?.task = nil
+//            switch result {
+//            case .success(let body):
+//                let authToken = body.accessToken
+//                OAuth2TokenStorage.shared.token = authToken
+//                completion(.success(authToken))
+//            case .failure(let error):
+//                completion(.failure(error))
+//            }
+//        }
+//        else {
+//            completion(.failure(/* some error indicating invalid task */))
+//        }
+//    }
+
     
-    private func authTokenRequest(code: String) -> URLRequest {
-        var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token")!
+    private func authTokenRequest(code: String) -> URLRequest? {
+        guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token") else {
+            assertionFailure("Некорректный базовый URL")
+            return nil
+        }
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
             URLQueryItem(name: "client_secret", value: SecretKey),
@@ -54,7 +85,10 @@ final class OAuth2Service {
             URLQueryItem(name: "code", value: code),
             URLQueryItem(name: "grant_type", value: "authorization_code")
         ]
-        let url = urlComponents.url!
+        guard let url = urlComponents.url else {
+            assertionFailure("Ошибка при создании URL")
+            return nil
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         return request

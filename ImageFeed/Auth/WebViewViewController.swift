@@ -25,7 +25,7 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.modalPresentationCapturesStatusBarAppearance = true
+        modalPresentationCapturesStatusBarAppearance = true
 
         webView.navigationDelegate = self
         
@@ -48,7 +48,8 @@ final class WebViewViewController: UIViewController {
     
     private func makeRequest() {
         guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString) else {
-            fatalError("Incorrect base URL")
+            assertionFailure("Incorrect base URL")
+            return
         }
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
