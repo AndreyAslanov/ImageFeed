@@ -6,26 +6,71 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
-    private let label: UILabel = {
-        let label = UILabel()
-        return label
-    }()
     
     private let blackView = UIView()
-    private let profileImage = UIImage()
-    private let logoutButton = UIButton()
+    private let profileImage = UIImage(named:"Avatar")
     private let nameLabel = UILabel()
     private let loginNameLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let avatarImageView = UIImageView()
+    private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
+    private let logoutButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "logout_button")
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupViews()
         setupConstraints()
+
+        updateProfileDetails(profile: profileService.profile)
+        
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        profileImageServiceObserver = NotificationCenter.default   
+            .addObserver(
+                forName: ProfileImageService.DidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+    }
+    
+    private func updateAvatar() {
+        guard let profileImage = ProfileImageService.shared.avatarURL,
+              let url = URL(string: profileImage)
+        else { return }
+        let cache = ImageCache.default
+        cache.clearDiskCache()
+        avatarImageView.kf.setImage(with: url)
+        let processor = RoundCornerImageProcessor(cornerRadius: 42)
+        
+        avatarImageView.kf.setImage(with: url,
+                                 placeholder: UIImage(named: "placeholder"),
+                                 options: [.processor(processor), .transition(.fade(1))])
+    }
+    
+    func updateProfileDetails(profile: ProfileService.Profile?){
+        if let profile = profile{
+            nameLabel.text = profile.name
+            loginNameLabel.text = profile.loginName
+            descriptionLabel.text = profile.bio
+        } else {
+            print("Ошибка: Значение profile равно nil")
+        }
     }
     
     private func setupViews() {
@@ -103,6 +148,12 @@ final class ProfileViewController: UIViewController {
             if view is UILabel {
                 view.removeFromSuperview()
             }
+        }
+    }
+    
+    deinit {
+        if let observer = profileImageServiceObserver {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 }
