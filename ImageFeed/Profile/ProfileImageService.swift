@@ -24,16 +24,13 @@ final class ProfileImageService {
     }
     
     func fetchProfileImageURL(userName: String, _ completion: @escaping(Result<String, Error>) -> Void) {
-        print ("userName: \(userName)")
         assert(Thread.isMainThread)
         fetchProfileImageURLTask?.cancel()
         
-        guard let token = tokenStorage.token else {
+        guard let token = OAuth2TokenStorage.shared.token else {
             assertionFailure("Failed to make HTTP request")
             return
         }
-        
-//        let baseURL = URL(string: "https://api.unsplash.com")!
         guard let baseURL = URL(string: "https://api.unsplash.com") else {
             assertionFailure("Invalid URL")
             return
@@ -60,6 +57,7 @@ final class ProfileImageService {
                 self?.avatarURL = result.profileImage.large
             case .failure(let error):
                 completion(.failure(error))
+                print("Ошибка при выполнении fetchProfileImageURLTask: \(error)")
             }
         }
         

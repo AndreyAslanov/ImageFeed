@@ -20,13 +20,11 @@ final class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP Black")
-//        setupViews()
         setupSplashConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("вьюДидАпир")
         
         guard UIBlockingProgressHUD.isShowing == false else { return }
         if let token = oauth2TokenStorage.token {
@@ -101,11 +99,9 @@ extension SplashViewController: AuthViewControllerDelegate {
             case .success(let token):
                 oauth2TokenStorage.token = token
                 self.fetchProfile(token: token)
-                print ("Алерт. Успех")
             case .failure:
                 UIBlockingProgressHUD.dismiss()
                 showAlert()
-                print ("Алерт. Неудача")
             }
         }
     }

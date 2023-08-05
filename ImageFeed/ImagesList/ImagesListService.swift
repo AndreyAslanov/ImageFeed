@@ -8,96 +8,200 @@
 import Foundation
 import UIKit
 
-struct PhotoResult: Codable {
+struct PhotoResult: Decodable {
     let id: String
-    let created_at: String
+    let createdAt: String?
     let width: Int
     let height: Int
     let description: String?
     let urls: UrlsResult
+    let likedByUser: Bool?
 }
 
-struct UrlsResult: Codable {
-    let raw: String
+struct UrlsResult: Decodable {
     let full: String
     let regular: String
     let small: String
     let thumb: String
 }
 
-struct Photo {
+struct Photo: Codable {
     let id: String
     let size: CGSize
     let createdAt: Date?
     let welcomeDescription: String?
     let thumbImageURL: String
     let largeImageURL: String
+    let regularImageURL: String
+    let smallImageURL: String
     let isLiked: Bool
+    
+    init(_ photoResult: PhotoResult, date: ISO8601DateFormatter) {
+        self.id = photoResult.id
+        self.size = CGSize(width: photoResult.width, height: photoResult.height)
+        self.createdAt = date.date(from: photoResult.createdAt ?? "")
+        self.welcomeDescription = photoResult.description
+        self.thumbImageURL = photoResult.urls.thumb
+        self.largeImageURL = photoResult.urls.full
+        self.regularImageURL = photoResult.urls.regular
+        self.smallImageURL = photoResult.urls.small
+        self.isLiked = photoResult.likedByUser ?? false
+    }
+}
+
+struct PhotoLike: Decodable {
+    let photo: PhotoResult
 }
 
 final class ImagesListService {
     private (set) var photos: [Photo] = []
     private var lastLoadedPage: Int?
-
-    static let DidChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
-
+    private var currentTask: URLSessionTask?
+    private let urlSession = URLSession.shared
+    private let dateFormatter = ISO8601DateFormatter()
+    
+    static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
+    static let shared = ImagesListService()
+    
+    private var page: Int = 1
+    private let per_page: Int = 10
+  
+// MARK: Response Photo Next Page
     func fetchPhotosNextPage() {
-        guard lastLoadedPage == nil || !isFetching else {
-            return // Если уже идет загрузка, ничего не делаем
-        }
+        assert(Thread.isMainThread)
+        guard currentTask == nil else { return }
+
+        print("fetchPhotosNextPage() called")
+        
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
-        // Создаем URLRequest для получения JSON данных от Unsplash
-        guard let url = URL(string: "https://api.unsplash.com/photos?page=\(nextPage)") else {
+        page = nextPage
+        
+        guard let authToken = OAuth2TokenStorage.shared.token else {
+            print("Токен не найден")
             return
         }
-
-        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
-            guard let self = self,
-                    let data = data,
-                    error == nil,
-                    let photos = try? JSONDecoder().decode([PhotoResult].self, from: data) else {
-                return
-            }
-
-            // Преобразуем массив PhotoResult в массив Photo
-            let newPhotos = photos.map { photoResult in
-                Photo(
-                    id: photoResult.id,
-                    size: CGSize(width: photoResult.width, height: photoResult.height),
-                    createdAt: ISO8601DateFormatter().date(from: photoResult.created_at),
-                    welcomeDescription: photoResult.description,
-                    thumbImageURL: photoResult.urls.thumb,
-                    largeImageURL: photoResult.urls.regular,
-                    isLiked: false // Вы можете установить начальное состояние "понравилось" здесь
-                )
-            }
-
-            DispatchQueue.main.async {
-                // Добавляем новые фотографии в массив photos
-                self.photos += newPhotos
-
-                // Обновляем значение lastLoadedPage
-                self.lastLoadedPage = nextPage
-
-                // Публикуем уведомление, чтобы уведомить UI об изменениях
-                NotificationCenter.default.post(name: ImagesListService.DidChangeNotification, object: nil)
-            }
+        
+        if let authToken = OAuth2TokenStorage.shared.token {
+            print("Токен на фотках: \(authToken)")
+        } else {
+            print ("Токен на фотки не пришел")
         }
-
+        
+        guard let request = makeRequest(authToken: authToken, page: nextPage) else {
+            print("Запрос не удался")
+            return
+        }
+        
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<[PhotoResult], Error>) in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let photoResults):
+                    if self.lastLoadedPage == nil {
+                        self.lastLoadedPage = 1
+                    } else {
+                        self.lastLoadedPage! += 1
+                    }
+                    let newPhotos = photoResults.map { Photo ($0, date: self.dateFormatter) }
+                    
+                    if let httpResponse = (self.currentTask?.response as? HTTPURLResponse) {
+                        print("Статус-код:", httpResponse.statusCode)
+                    }
+                                        
+                    self.photos.append(contentsOf: newPhotos)
+                    
+                    NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
+                    
+                case.failure(let error):
+                    print("Ошибка запроса fetchPhotosNextPage:", error.localizedDescription)
+                }
+            }
+            self.currentTask = nil
+        }
+        self.currentTask = task
         task.resume()
     }
-
-    private var isFetching: Bool {
-        return lastLoadedPage != nil
-    }
-
-    func tableView(
-      _ tableView: UITableView,
-      willDisplay cell: UITableViewCell,
-      forRowAt indexPath: IndexPath
-    ) {
-        if indexPath.row + 1 == photos.count {
-            fetchPhotosNextPage()
+    
+// MARK: Response Change Like
+    func changeLike(photoId: String, isLike: Bool, _ complition: @escaping (Result<Void, Error>) -> Void) {
+        if currentTask != nil {
+            currentTask?.cancel()
         }
+        guard let request = makeLikeRequest(photoId: photoId, isLike: isLike) else {
+            return
+        }
+        let task = URLSession.shared.objectTask(for: request) { (result: Result<PhotoLike, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                        let photo = self.photos[index]
+                        let newPhotoResult = PhotoResult(id: photo.id,
+                                                         createdAt: photo.createdAt?.description,
+                                                         width: Int(photo.size.width),
+                                                         height: Int(photo.size.height),
+                                                         description: photo.welcomeDescription,
+                                                         urls: UrlsResult(full: photo.largeImageURL,
+                                                                          regular: photo.regularImageURL,
+                                                                          small: photo.smallImageURL,
+                                                                          thumb: photo.thumbImageURL),
+                                                         likedByUser: !photo.isLiked)
+                        let newPhoto = Photo(newPhotoResult, date: self.dateFormatter)
+                        self.photos[index] = newPhoto
+                        complition(.success(()))
+                    }
+                    
+                case .failure(let error):
+                    fatalError("error like: \(error)")
+                }
+            }
+        }
+        self.currentTask = task
+        task.resume()
+    }
+     
+// MARK: Requests
+    private func makeRequest(authToken: String, page: Int) -> URLRequest? {
+        guard var urlComponents = URLComponents(string: "https://api.unsplash.com/photos") else {
+            assertionFailure("Неправильный юрл")
+            return nil
+        }
+        urlComponents.queryItems = [
+            URLQueryItem(name: "page", value: "\(page)"),
+            URLQueryItem(name: "per_page", value: "10")
+        ]
+        guard let url = urlComponents.url else {
+            assertionFailure("Ошибка создания юрл")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        return request
+        
+    }
+    
+    private func makeLikeRequest(photoId: String, isLike: Bool) -> URLRequest? {
+        let baseURL = "https://api.unsplash.com"
+        let likeURL = "\(baseURL)/photos/\(photoId)/like"
+        
+        guard let url = URL(string: likeURL) else {
+            assertionFailure("Ошибка создания URL для лайков")
+            return nil
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "POST" : "DELETE"
+        
+
+        guard let authToken = OAuth2TokenStorage.shared.token else {
+            print("Токен на лайках не найден")
+            return nil
+        }
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        
+        return request
     }
 }
+
+

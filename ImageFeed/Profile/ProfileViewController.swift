@@ -32,7 +32,6 @@ final class ProfileViewController: UIViewController {
         
         setupViews()
         setupConstraints()
-
         updateProfileDetails(profile: profileService.profile)
         
         view.backgroundColor = UIColor(named: "YP Black")
@@ -50,6 +49,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatar() {
+        print("updateAvatar работает")
         guard let profileImage = ProfileImageService.shared.avatarURL,
               let url = URL(string: profileImage)
         else { return }
@@ -79,14 +79,13 @@ final class ProfileViewController: UIViewController {
         blackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(blackView)
         
-        let profileImage = UIImage(named: "Photo")
         avatarImageView.image = profileImage
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(avatarImageView)
         
         logoutButton.setImage(UIImage(named: "logout_button"), for: .normal)
         logoutButton.tintColor = UIColor(named: "YP Red")
-        logoutButton.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(logoutButton)
         
@@ -142,19 +141,27 @@ final class ProfileViewController: UIViewController {
     }
         
     @objc
-    private func didTapButton() {
+    private func didTapLogoutButton() {
+        let alert = UIAlertController(title: "Пока, пока!", message: "Уверены что хотите выйти?", preferredStyle: .alert)
         
-        for view in view.subviews {
-            if view is UILabel {
-                view.removeFromSuperview()
+        let yesAction = UIAlertAction(title: "Да", style: .default) { _ in
+            OAuth2TokenStorage.shared.clean()
+            WebViewViewController.clean()
+            ImagesListCell.clean()
+            
+            guard let window = UIApplication.shared.windows.first else {
+                fatalError("invalid configuration")
             }
+            window.rootViewController = SplashViewController()
+            window.makeKeyAndVisible()
         }
-    }
-    
-    deinit {
-        if let observer = profileImageServiceObserver {
-            NotificationCenter.default.removeObserver(observer)
+        
+        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
+            alert.dismiss(animated: true)
         }
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        present(alert, animated: true)
     }
 }
 

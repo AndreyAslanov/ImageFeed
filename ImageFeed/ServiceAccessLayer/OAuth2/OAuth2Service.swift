@@ -48,30 +48,6 @@ final class OAuth2Service {
         self.task = task
         task.resume()
     }
-//    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-//        assert(Thread.isMainThread)
-//
-//        if lastCode == code { return }
-//        task?.cancel()
-//        lastCode = code
-//
-//        let request = authTokenRequest(code: code)
-//        if let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
-//            self?.task = nil
-//            switch result {
-//            case .success(let body):
-//                let authToken = body.accessToken
-//                OAuth2TokenStorage.shared.token = authToken
-//                completion(.success(authToken))
-//            case .failure(let error):
-//                completion(.failure(error))
-//            }
-//        }
-//        else {
-//            completion(.failure(/* some error indicating invalid task */))
-//        }
-//    }
-
     
     private func authTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token") else {

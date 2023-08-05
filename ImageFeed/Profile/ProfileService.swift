@@ -54,14 +54,11 @@ final class ProfileService{
                 
                 if let profile = profile {
                     completion(.success(profile))
-                    print("Фото работает")
                 } else {
                     completion(.failure(NetworkError.invalidResponse))
-                    print("Фото не работает")
                 }
             case .failure(let error):
                 completion(.failure(error))
-                print("Фото не работает 2")
             }
         }
         self.task = task
