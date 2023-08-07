@@ -29,14 +29,14 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupViews()
         setupConstraints()
         updateProfileDetails(profile: profileService.profile)
-        
+
         view.backgroundColor = UIColor(named: "YP Black")
-        
-        profileImageServiceObserver = NotificationCenter.default   
+
+        profileImageServiceObserver = NotificationCenter.default
             .addObserver(
                 forName: ProfileImageService.didChangeNotification,
                 object: nil,
@@ -47,20 +47,20 @@ final class ProfileViewController: UIViewController {
             }
         updateAvatar()
     }
-    
+
     private func updateAvatar() {
-        print("updateAvatar работает")
         guard let profileImage = ProfileImageService.shared.avatarURL,
               let url = URL(string: profileImage)
         else { return }
+        
         let cache = ImageCache.default
         cache.clearDiskCache()
         avatarImageView.kf.setImage(with: url)
         let processor = RoundCornerImageProcessor(cornerRadius: 42)
         
         avatarImageView.kf.setImage(with: url,
-                                 placeholder: UIImage(named: "placeholder"),
-                                 options: [.processor(processor), .transition(.fade(1))])
+                                    placeholder: UIImage(named: "placeholder"),
+                                    options: [.processor(processor), .transition(.fade(1))])
     }
     
     func updateProfileDetails(profile: ProfileService.Profile?){
@@ -150,7 +150,8 @@ final class ProfileViewController: UIViewController {
             ImagesListCell.clean()
             
             guard let window = UIApplication.shared.windows.first else {
-                fatalError("invalid configuration")
+                assertionFailure("invalid configuration")
+                return
             }
             window.rootViewController = SplashViewController()
             window.makeKeyAndVisible()

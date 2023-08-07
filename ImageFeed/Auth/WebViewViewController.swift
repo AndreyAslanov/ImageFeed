@@ -34,7 +34,6 @@ final class WebViewViewController: UIViewController {
         estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] _, _ in
             guard let self else { return }
             self.updateProgress()
-            print ("Заходит")
         }
     }
     
@@ -74,8 +73,7 @@ extension WebViewViewController: WKNavigationDelegate {
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-    ) {
-        print ("decidePolicyFor")                                               
+    ) {                                              
         if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)

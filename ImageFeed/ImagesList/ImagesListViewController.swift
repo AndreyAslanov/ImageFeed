@@ -90,7 +90,7 @@ extension ImagesListViewController: ImagesListDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
         
-        UIBlockingProgressHUD.showWA()
+        UIBlockingProgressHUD.show()
         
         imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
             guard let self else { return }
@@ -98,10 +98,10 @@ extension ImagesListViewController: ImagesListDelegate {
             case .success:
                 self.photos = self.imagesListService.photos
                 cell.setIsLiked(isLiked: self.photos[indexPath.row].isLiked)
-                UIBlockingProgressHUD.dismissWA()
+                UIBlockingProgressHUD.dismiss()
             case .failure(let error):
                 print(error.localizedDescription)
-                UIBlockingProgressHUD.dismissWA()
+                UIBlockingProgressHUD.dismiss()
             }
         }
     }

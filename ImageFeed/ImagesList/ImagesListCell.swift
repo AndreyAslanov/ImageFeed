@@ -20,7 +20,15 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet var likeButton: UIButton!
     @IBOutlet var dateLabel: UILabel!
     
-    private lazy var dateFormatter: DateFormatter = {
+//    private lazy var dateFormatter: DateFormatter = {                 //старый вариант
+//        let formatter = DateFormatter()
+//        formatter.dateStyle = .long
+//        formatter.timeStyle = .none
+//        formatter.locale = Locale(identifier: "ru_RU")
+//        return formatter
+//    }()
+    
+    static let dateFormatterInstance: DateFormatter = {                 //новый вариант
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .none
@@ -33,7 +41,7 @@ final class ImagesListCell: UITableViewCell {
         cellImage.kf.cancelDownloadTask()
     }
     
-    func setupCell(from photo:Photo) {
+    func setupCell(from photo: Photo) {
         
         let url = URL(string: photo.smallImageURL)
         
@@ -50,7 +58,8 @@ final class ImagesListCell: UITableViewCell {
                 self.cellImage.image = UIImage(named: "placeholderImage")
             }
         }
-        dateLabel.text = dateFormatter.string(from: photo.createdAt ?? Date())
+//        dateLabel.text = dateFormatter.string(from: photo.createdAt ?? Date())        //старый
+        dateLabel.text = ImagesListCell.dateFormatterInstance.string(from: photo.createdAt ?? Date())   //новый
         setIsLiked(isLiked: photo.isLiked)
     }
     

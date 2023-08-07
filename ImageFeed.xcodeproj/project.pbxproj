@@ -31,7 +31,6 @@
 		E76F77992A277C76000C8F09 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76F77982A277C76000C8F09 /* ImagesListCell.swift */; };
 		E7C08AC62A7815FF00DCF4F4 /* ImagesListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C08AC52A7815FF00DCF4F4 /* ImagesListService.swift */; };
 		E7F495022A37679A00E8DC20 /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F495012A37679A00E8DC20 /* SingleImageViewController.swift */; };
-		E7FCB4D62A7A778B00D0A4ED /* ImagesListServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7FCB4D52A7A778A00D0A4ED /* ImagesListServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,7 +57,6 @@
 		E76F77982A277C76000C8F09 /* ImagesListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
 		E7C08AC52A7815FF00DCF4F4 /* ImagesListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListService.swift; sourceTree = "<group>"; };
 		E7F495012A37679A00E8DC20 /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
-		E7FCB4D52A7A778A00D0A4ED /* ImagesListServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,7 +126,6 @@
 		E7195CEE2A2376D400267FBF /* ImageFeed */ = {
 			isa = PBXGroup;
 			children = (
-				E7FCB4D32A7A771100D0A4ED /* ImageFeedTests */,
 				E70C150B2A6EB303000E068F /* TabBarController */,
 				E71E97212A699C12001BAA06 /* URLSessionExtension */,
 				E7380DE42A460C6D008F8040 /* Constants.swift */,
@@ -191,14 +188,6 @@
 				E7F495012A37679A00E8DC20 /* SingleImageViewController.swift */,
 			);
 			path = SingleImageViewController;
-			sourceTree = "<group>";
-		};
-		E7FCB4D32A7A771100D0A4ED /* ImageFeedTests */ = {
-			isa = PBXGroup;
-			children = (
-				E7FCB4D52A7A778A00D0A4ED /* ImagesListServiceTests.swift */,
-			);
-			path = ImageFeedTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -297,7 +286,6 @@
 				E7380DED2A4729DF008F8040 /* WebViewViewController.swift in Sources */,
 				E7C08AC62A7815FF00DCF4F4 /* ImagesListService.swift in Sources */,
 				E716B04A2A51C66A00E4A125 /* OAuth2Service.swift in Sources */,
-				E7FCB4D62A7A778B00D0A4ED /* ImagesListServiceTests.swift in Sources */,
 				E71D6EC02A66EF5D00E05902 /* ProfileImageService.swift in Sources */,
 				E7195CF22A2376D400267FBF /* SceneDelegate.swift in Sources */,
 				E71D6EBD2A62B13800E05902 /* ProfileService.swift in Sources */,

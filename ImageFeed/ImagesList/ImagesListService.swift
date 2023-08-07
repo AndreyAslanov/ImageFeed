@@ -15,7 +15,17 @@ struct PhotoResult: Decodable {
     let height: Int
     let description: String?
     let urls: UrlsResult
-    let likedByUser: Bool?
+    let likedByUser: Bool             
+    
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case createdAt = "created_at"
+        case width
+        case height
+        case description
+        case urls
+        case likedByUser = "liked_by_user"
+    }
 }
 
 struct UrlsResult: Decodable {
@@ -25,7 +35,7 @@ struct UrlsResult: Decodable {
     let thumb: String
 }
 
-struct Photo: Codable {
+struct Photo {
     let id: String
     let size: CGSize
     let createdAt: Date?
@@ -34,7 +44,7 @@ struct Photo: Codable {
     let largeImageURL: String
     let regularImageURL: String
     let smallImageURL: String
-    let isLiked: Bool
+    var isLiked: Bool
     
     init(_ photoResult: PhotoResult, date: ISO8601DateFormatter) {
         self.id = photoResult.id
@@ -45,7 +55,7 @@ struct Photo: Codable {
         self.largeImageURL = photoResult.urls.full
         self.regularImageURL = photoResult.urls.regular
         self.smallImageURL = photoResult.urls.small
-        self.isLiked = photoResult.likedByUser ?? false
+        self.isLiked = photoResult.likedByUser                    
     }
 }
 
@@ -58,26 +68,22 @@ final class ImagesListService {
     private var lastLoadedPage: Int?
     private var currentTask: URLSessionTask?
     private let urlSession = URLSession.shared
-    private let dateFormatter = ISO8601DateFormatter()
+    let dateFormatter = ISO8601DateFormatter()
     
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     static let shared = ImagesListService()
     
     private var page: Int = 1
-    private let per_page: Int = 10
   
 // MARK: Response Photo Next Page
     func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
         guard currentTask == nil else { return }
-
-        print("fetchPhotosNextPage() called")
         
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
         page = nextPage
         
         guard let authToken = OAuth2TokenStorage.shared.token else {
-            print("Токен не найден")
             return
         }
         
@@ -123,7 +129,7 @@ final class ImagesListService {
     }
     
 // MARK: Response Change Like
-    func changeLike(photoId: String, isLike: Bool, _ complition: @escaping (Result<Void, Error>) -> Void) {
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
         if currentTask != nil {
             currentTask?.cancel()
         }
@@ -148,18 +154,18 @@ final class ImagesListService {
                                                          likedByUser: !photo.isLiked)
                         let newPhoto = Photo(newPhotoResult, date: self.dateFormatter)
                         self.photos[index] = newPhoto
-                        complition(.success(()))
+                        completion(.success(()))
                     }
-                    
+
                 case .failure(let error):
-                    fatalError("error like: \(error)")
+                    assertionFailure("Ошибка при лайке: \(error)")
                 }
             }
         }
         self.currentTask = task
         task.resume()
     }
-     
+        
 // MARK: Requests
     private func makeRequest(authToken: String, page: Int) -> URLRequest? {
         guard var urlComponents = URLComponents(string: "https://api.unsplash.com/photos") else {
@@ -193,7 +199,6 @@ final class ImagesListService {
         var request = URLRequest(url: url)
         request.httpMethod = isLike ? "POST" : "DELETE"
         
-
         guard let authToken = OAuth2TokenStorage.shared.token else {
             print("Токен на лайках не найден")
             return nil

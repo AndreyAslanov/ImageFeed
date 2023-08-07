@@ -35,7 +35,6 @@ final class ProfileService{
     }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
-        print ("Передаю токен в fetchProfile: \(token)")
         task?.cancel()
         if task != nil {
             return
@@ -87,7 +86,6 @@ final class ProfileService{
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        print ("Получаю токен в profileRequest: \(token)")
         
         return request
     }
