@@ -29,17 +29,16 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupViews()
         setupConstraints()
-
         updateProfileDetails(profile: profileService.profile)
-        
+
         view.backgroundColor = UIColor(named: "YP Black")
-        
-        profileImageServiceObserver = NotificationCenter.default   
+
+        profileImageServiceObserver = NotificationCenter.default
             .addObserver(
-                forName: ProfileImageService.DidChangeNotification,
+                forName: ProfileImageService.didChangeNotification,
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
@@ -48,19 +47,20 @@ final class ProfileViewController: UIViewController {
             }
         updateAvatar()
     }
-    
+
     private func updateAvatar() {
         guard let profileImage = ProfileImageService.shared.avatarURL,
               let url = URL(string: profileImage)
         else { return }
+        
         let cache = ImageCache.default
         cache.clearDiskCache()
         avatarImageView.kf.setImage(with: url)
         let processor = RoundCornerImageProcessor(cornerRadius: 42)
         
         avatarImageView.kf.setImage(with: url,
-                                 placeholder: UIImage(named: "placeholder"),
-                                 options: [.processor(processor), .transition(.fade(1))])
+                                    placeholder: UIImage(named: "placeholder"),
+                                    options: [.processor(processor), .transition(.fade(1))])
     }
     
     func updateProfileDetails(profile: ProfileService.Profile?){
@@ -79,14 +79,13 @@ final class ProfileViewController: UIViewController {
         blackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(blackView)
         
-        let profileImage = UIImage(named: "Photo")
         avatarImageView.image = profileImage
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(avatarImageView)
         
         logoutButton.setImage(UIImage(named: "logout_button"), for: .normal)
         logoutButton.tintColor = UIColor(named: "YP Red")
-        logoutButton.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(logoutButton)
         
@@ -142,19 +141,28 @@ final class ProfileViewController: UIViewController {
     }
         
     @objc
-    private func didTapButton() {
+    private func didTapLogoutButton() {
+        let alert = UIAlertController(title: "Пока, пока!", message: "Уверены что хотите выйти?", preferredStyle: .alert)
         
-        for view in view.subviews {
-            if view is UILabel {
-                view.removeFromSuperview()
+        let yesAction = UIAlertAction(title: "Да", style: .default) { _ in
+            OAuth2TokenStorage.shared.clean()
+            WebViewViewController.clean()
+            ImagesListCell.clean()
+            
+            guard let window = UIApplication.shared.windows.first else {
+                assertionFailure("invalid configuration")
+                return
             }
+            window.rootViewController = SplashViewController()
+            window.makeKeyAndVisible()
         }
-    }
-    
-    deinit {
-        if let observer = profileImageServiceObserver {
-            NotificationCenter.default.removeObserver(observer)
+        
+        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
+            alert.dismiss(animated: true)
         }
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        present(alert, animated: true)
     }
 }
 

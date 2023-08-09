@@ -35,7 +35,6 @@ final class ProfileService{
     }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
-        print ("Передаю токен в fetchProfile: \(token)")
         task?.cancel()
         if task != nil {
             return
@@ -54,14 +53,11 @@ final class ProfileService{
                 
                 if let profile = profile {
                     completion(.success(profile))
-                    print("Фото работает")
                 } else {
                     completion(.failure(NetworkError.invalidResponse))
-                    print("Фото не работает")
                 }
             case .failure(let error):
                 completion(.failure(error))
-                print("Фото не работает 2")
             }
         }
         self.task = task
@@ -90,7 +86,6 @@ final class ProfileService{
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        print ("Получаю токен в profileRequest: \(token)")
         
         return request
     }

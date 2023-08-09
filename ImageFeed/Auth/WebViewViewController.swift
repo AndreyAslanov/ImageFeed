@@ -25,7 +25,7 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.modalPresentationCapturesStatusBarAppearance = true
+        modalPresentationCapturesStatusBarAppearance = true
 
         webView.navigationDelegate = self
         
@@ -34,7 +34,6 @@ final class WebViewViewController: UIViewController {
         estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] _, _ in
             guard let self else { return }
             self.updateProgress()
-            print ("Заходит")
         }
     }
     
@@ -48,7 +47,8 @@ final class WebViewViewController: UIViewController {
     
     private func makeRequest() {
         guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString) else {
-            fatalError("Incorrect base URL")
+            assertionFailure("Incorrect base URL")
+            return
         }
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
@@ -73,12 +73,10 @@ extension WebViewViewController: WKNavigationDelegate {
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-    ) {
-        print ("decidePolicyFor")                                               
+    ) {                                              
         if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
-            print ("Код: \(code)")
         } else {
             decisionHandler(.allow)
         }
@@ -95,6 +93,18 @@ extension WebViewViewController: WKNavigationDelegate {
             return codeItem.value
         } else {
             return nil
+        }
+    }
+}
+
+//MARK: - Cleaning Data
+extension WebViewViewController {
+    static func clean() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
         }
     }
 }

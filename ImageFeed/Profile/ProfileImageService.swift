@@ -2,7 +2,7 @@ import Foundation
 
 final class ProfileImageService {
     
-    static let DidChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     private(set) var avatarURL: String?
     static let shared = ProfileImageService()
     private var fetchProfileImageURLTask: URLSessionTask?
@@ -14,7 +14,11 @@ final class ProfileImageService {
     }
     
     struct UserResult: Codable {
-        let profile_image: ProfileImage
+        let profileImage: ProfileImage
+        
+        private enum CodingKeys: String, CodingKey {
+            case profileImage = "profile_image"
+        }
     }
     
     struct ProfileImage: Codable {
@@ -24,16 +28,18 @@ final class ProfileImageService {
     }
     
     func fetchProfileImageURL(userName: String, _ completion: @escaping(Result<String, Error>) -> Void) {
-        print ("userName: \(userName)")
         assert(Thread.isMainThread)
         fetchProfileImageURLTask?.cancel()
         
-        guard let token = tokenStorage.token else {
+        guard let token = OAuth2TokenStorage.shared.token else {
             assertionFailure("Failed to make HTTP request")
             return
         }
-        
-        let baseURL = URL(string: "https://api.unsplash.com")!
+        guard let baseURL = URL(string: "https://api.unsplash.com") else {
+            assertionFailure("Invalid URL")
+            return
+        }
+
         let url = baseURL.appendingPathComponent("/users/\(userName)")
         
         var request = URLRequest(url: url)
@@ -45,16 +51,17 @@ final class ProfileImageService {
             
             switch response{
             case .success(let result):
-                completion(.success(result.profile_image.large))
-                NotificationCenter.default.post(name:ProfileImageService.DidChangeNotification,
+                completion(.success(result.profileImage.large))
+                NotificationCenter.default.post(name:ProfileImageService.didChangeNotification,
                                                 object:self,
-                                                userInfo: ["URL": result.profile_image.large])
+                                                userInfo: ["URL": result.profileImage.large])
                 if let avatarURL = self?.avatarURL {
                     print("URL аватара: \(avatarURL)")
                 }
-                self?.avatarURL = result.profile_image.large
+                self?.avatarURL = result.profileImage.large
             case .failure(let error):
                 completion(.failure(error))
+                print("Ошибка при выполнении fetchProfileImageURLTask: \(error)")
             }
         }
         

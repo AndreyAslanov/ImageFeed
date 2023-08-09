@@ -17,17 +17,27 @@ final class SplashViewController: UIViewController {
     private let splashImage = UIImageView()
     private var splashImageView = UIImage(named:"Vector")
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "YP Black")
+        setupSplashConstraints()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("вьюДидАпир")
-        
-        setupSplashConstraints()
-        view.backgroundColor = UIColor(named: "YP Black")
-        
+
+        guard UIBlockingProgressHUD.isShowing == false else { return }
         if let token = oauth2TokenStorage.token {
             fetchProfile(token: token)
+//            switchToTabBarController()
         } else {
-            switchToAuthViewController()
+            guard let authViewController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
+                    assertionFailure("Failed to show Authentication Screen")
+                    return
+            }
+            authViewController.delegate = self
+            authViewController.modalPresentationStyle = .fullScreen
+            present(authViewController, animated: true)
         }
     }
     
@@ -41,7 +51,9 @@ final class SplashViewController: UIViewController {
     }
 
     private func switchToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration") }
+        guard let window = UIApplication.shared.windows.first else { assertionFailure("Invalid Configuration")
+            return
+        }
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarViewController")
         window.rootViewController = tabBarController
@@ -73,27 +85,23 @@ final class SplashViewController: UIViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
+        UIBlockingProgressHUD.show()
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
-            UIBlockingProgressHUD.show()
-            print("ПрогрессХуд.шоу")
             self.fetchOAuthToken(code)
         }
     }
     
     private func fetchOAuthToken(_ code: String) {
-        UIBlockingProgressHUD.show()
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let token):
                 oauth2TokenStorage.token = token
-                self.fetchProfile(token: token)
-                print ("Алерт. Успех")
+                fetchProfile(token: token)
             case .failure:
                 UIBlockingProgressHUD.dismiss()
                 showAlert()
-                print ("Алерт. Неудача")
             }
         }
     }
