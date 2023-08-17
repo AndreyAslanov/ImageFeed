@@ -1,3 +1,4 @@
+
 import Foundation
 
 final class ProfileImageService {
@@ -11,20 +12,6 @@ final class ProfileImageService {
     
     private init() {
         tokenStorage = OAuth2TokenStorage.shared
-    }
-    
-    struct UserResult: Codable {
-        let profileImage: ProfileImage
-        
-        private enum CodingKeys: String, CodingKey {
-            case profileImage = "profile_image"
-        }
-    }
-    
-    struct ProfileImage: Codable {
-        let small: String
-        let medium: String
-        let large: String
     }
     
     func fetchProfileImageURL(userName: String, _ completion: @escaping(Result<String, Error>) -> Void) {
