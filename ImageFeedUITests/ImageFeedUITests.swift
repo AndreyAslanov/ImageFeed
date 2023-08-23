@@ -39,7 +39,7 @@ class Image_FeedUITests: XCTestCase {
         XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5))
 
         passwordTextField.tap()
-        passwordTextField.typeText("$An26Dr07Ey98$")
+        passwordTextField.typeText(password)
         
         if password.count == 8 {
             while passwordTextField.value as? String != password {
