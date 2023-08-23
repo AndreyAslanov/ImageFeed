@@ -13,27 +13,6 @@ final class ProfileService{
     private var task: URLSessionTask?
     private(set) var profile: Profile?
     
-    struct ProfileResult: Codable{
-        let userName: String?
-        let firstName: String?
-        let lastName: String?
-        let bio: String?
-        
-        private enum CodingKeys: String, CodingKey {
-            case userName = "username"
-            case firstName = "first_name"
-            case lastName = "last_name"
-            case bio
-        }
-    }
-    
-    struct Profile{
-        let userName: String?
-        let name: String?
-        let loginName: String?
-        let bio: String?
-    }
-    
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         task?.cancel()
         if task != nil {
@@ -48,7 +27,7 @@ final class ProfileService{
             self?.task = nil
             switch response {
             case .success(let profileResult):
-                let profile = self?.buildProfile(from: profileResult) 
+                let profile = self?.buildProfile(from: profileResult)
                 self?.profile = profile
                 
                 if let profile = profile {
@@ -79,7 +58,7 @@ final class ProfileService{
     }
     
     private func profileRequest(token: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/me") else {         
+        guard let url = URL(string: "https://api.unsplash.com/me") else {
             return nil
         }
         

@@ -7,10 +7,21 @@
 
 import UIKit
 
-final class ImagesListViewController: UIViewController {
+protocol ImagesListViewControllerProtocol: AnyObject {
+    var presenter: ImagesListViewPresenterProtocol? { get set }
+    var photos: [Photo] { get set }
+    func updateTableViewAnimated()
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
+}
+
+final class ImagesListViewController: UIViewController, ImagesListViewControllerProtocol {
+    lazy var presenter: ImagesListViewPresenterProtocol? = {
+        return ImagesListViewPresenter()
+    } ()
     
-    private var photos: [Photo] = []
+    var photos: [Photo] = []
     private let imagesListService = ImagesListService.shared
+    private let alertManager = Alert.shared
     
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     private var imagesListServiceObserver: NSObjectProtocol?
@@ -20,12 +31,17 @@ final class ImagesListViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
             .lightContent
         }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter?.viewDidLoad()
+        presenter?.view = self
+    }
+    
+    private func setupTableView() {
+        tableView.dataSource = self
+        tableView.delegate = self
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        notifications()
-        imagesListService.fetchPhotosNextPage()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -48,9 +64,8 @@ extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row + 1 == photos.count {
-            imagesListService.fetchPhotosNextPage()
+            presenter?.checkCompletedList(indexPath)
         }
-        
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -92,18 +107,25 @@ extension ImagesListViewController: ImagesListDelegate {
         
         UIBlockingProgressHUD.show()
         
-        imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
+        presenter?.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
-                self.photos = self.imagesListService.photos
+                guard let newPhotos = self.presenter?.imagesListService.photos else { return }
+                self.photos = newPhotos                           
                 cell.setIsLiked(isLiked: self.photos[indexPath.row].isLiked)
                 UIBlockingProgressHUD.dismiss()
             case .failure(let error):
+                self.showLikeErrorAlert(with: error)
                 print(error.localizedDescription)
                 UIBlockingProgressHUD.dismiss()
             }
         }
+    }
+    
+    func showLikeErrorAlert(with error: Error)  {
+        let alert = alertManager.likeAlert(with: Error.self as! Error)
+        present(alert, animated: true, completion: nil)
     }
 }
 
@@ -111,8 +133,9 @@ extension ImagesListViewController: ImagesListDelegate {
 extension ImagesListViewController {
     func updateTableViewAnimated() {
         let oldCount = photos.count
-        let newCount = imagesListService.photos.count
-        photos = imagesListService.photos
+        guard let newCount = presenter?.imagesListService.photos.count else { return }
+        guard let newPhotos = presenter?.imagesListService.photos else { return}
+        photos = newPhotos
         if oldCount != newCount {
             tableView.performBatchUpdates {
                 let indexPaths = (oldCount..<newCount).map { i in
@@ -124,17 +147,4 @@ extension ImagesListViewController {
     }
 }
 
-//MARK: Notification
-extension ImagesListViewController{
-    private func notifications() {
-        imagesListServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ImagesListService.didChangeNotification,
-                object: nil,
-                queue: .main) { [weak self] _ in
-                    guard let self = self else { return }
-                    self.updateTableViewAnimated()
-                }
-    }
-}
 

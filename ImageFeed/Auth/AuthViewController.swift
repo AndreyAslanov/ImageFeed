@@ -38,6 +38,10 @@ final class AuthViewController: UIViewController {
             else { assertionFailure("Failed to prepare for \(webViewIdentifier)")
                 return 
             }
+            let authHelper = AuthHelper()
+            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+            webViewViewController.presenter = webViewPresenter
+            webViewPresenter.view = webViewViewController
             webViewViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -47,8 +51,8 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-                delegate?.authViewController(self, didAuthenticateWithCode: code)
-            }
+        delegate?.authViewController(self, didAuthenticateWithCode: code)
+    }
 
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         dismiss(animated: true)

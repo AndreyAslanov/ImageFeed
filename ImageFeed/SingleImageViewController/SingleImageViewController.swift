@@ -13,6 +13,7 @@ final class SingleImageViewController: UIViewController {
     
     @IBOutlet weak private var scrollView: UIScrollView!
     @IBOutlet weak private var imageView: UIImageView!
+    @IBOutlet weak var didTapBackButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +21,7 @@ final class SingleImageViewController: UIViewController {
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
         loadAndShowImage(url: image)
+        didTapBackButton.accessibilityIdentifier = "BackButton"
     }
     
     @IBAction private func didTapBackButton(_ sender: UIButton) {

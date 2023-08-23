@@ -20,15 +20,7 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet var likeButton: UIButton!
     @IBOutlet var dateLabel: UILabel!
     
-//    private lazy var dateFormatter: DateFormatter = {                 //старый вариант
-//        let formatter = DateFormatter()
-//        formatter.dateStyle = .long
-//        formatter.timeStyle = .none
-//        formatter.locale = Locale(identifier: "ru_RU")
-//        return formatter
-//    }()
-    
-    static let dateFormatterInstance: DateFormatter = {                 //новый вариант
+    static let dateFormatterInstance: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .none
@@ -44,8 +36,8 @@ final class ImagesListCell: UITableViewCell {
     func setupCell(from photo: Photo) {
         
         let url = URL(string: photo.smallImageURL)
-        
         cellImage.kf.indicatorType = .activity
+        
         let placeholderImage = UIImage(named: "placeholderImage")
         cellImage.kf.setImage(with: url, placeholder: placeholderImage) { result in
         
@@ -58,8 +50,7 @@ final class ImagesListCell: UITableViewCell {
                 self.cellImage.image = UIImage(named: "placeholderImage")
             }
         }
-//        dateLabel.text = dateFormatter.string(from: photo.createdAt ?? Date())        //старый
-        dateLabel.text = ImagesListCell.dateFormatterInstance.string(from: photo.createdAt ?? Date())   //новый
+        dateLabel.text = ImagesListCell.dateFormatterInstance.string(from: photo.createdAt ?? Date())
         setIsLiked(isLiked: photo.isLiked)
     }
     
@@ -71,13 +62,5 @@ final class ImagesListCell: UITableViewCell {
     @IBAction private func likeButtonClicked(_ sender: UIButton) {
         delegate?.imagesListCellDidTapLike(self)
     }
-    
-    static func clean() {
-        let cache = ImageCache.default
-        cache.clearMemoryCache()
-        cache.clearDiskCache()
-        cache.backgroundCleanExpiredDiskCache()
-        cache.cleanExpiredMemoryCache()
-        cache.clearCache()
-    }
 }
+

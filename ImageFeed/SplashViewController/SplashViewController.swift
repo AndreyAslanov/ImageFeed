@@ -29,7 +29,6 @@ final class SplashViewController: UIViewController {
         guard UIBlockingProgressHUD.isShowing == false else { return }
         if let token = oauth2TokenStorage.token {
             fetchProfile(token: token)
-//            switchToTabBarController()
         } else {
             guard let authViewController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
                     assertionFailure("Failed to show Authentication Screen")

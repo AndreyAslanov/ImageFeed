@@ -41,6 +41,7 @@
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cIG-zl-SZV" userLabel="Like Button">
                                                     <rect key="frame" x="356" y="4" width="42" height="42"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="like_button_off"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="42" id="Zjw-DK-ppC"/>
                                                         <constraint firstAttribute="height" constant="42" id="zDt-pP-CcL"/>
@@ -168,6 +169,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="mnk-E9-jbf"/>
                     <connections>
+                        <outlet property="didTapBackButton" destination="pJx-lh-VAr" id="Rb0-Pv-nmn"/>
                         <outlet property="imageView" destination="ewG-OI-mUd" id="M6r-D4-feE"/>
                         <outlet property="scrollView" destination="I7l-ct-T1O" id="etE-VP-22J"/>
                     </connections>
@@ -202,9 +204,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ysd-Wl-X6P" userLabel="Auth Button">
+                            <button opaque="NO" contentMode="scaleToFill" restorationIdentifier="Authenticate" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ysd-Wl-X6P" userLabel="Auth Button">
                                 <rect key="frame" x="16" y="724" width="382" height="48"/>
                                 <color key="backgroundColor" name="YP White"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="dpQ-3A-8CY"/>
                                 </constraints>
@@ -256,7 +259,7 @@
         <!--Web View View Controller-->
         <scene sceneID="FDo-R9-KhU">
             <objects>
-                <viewController id="cpt-IZ-oEc" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="cpt-IZ-oEc" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="7YJ-Eq-bdr">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -268,6 +271,9 @@
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="UnsplashWebView"/>
+                                </userDefinedRuntimeAttributes>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bJK-mn-A1N">
                                 <rect key="frame" x="0.0" y="0.0" width="64" height="44"/>
