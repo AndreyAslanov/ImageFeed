@@ -16,7 +16,7 @@ protocol ImagesListViewPresenterProtocol {
     func checkCompletedList(_ indexPath: IndexPath)
 }
 
-class ImagesListViewPresenter: ImagesListViewPresenterProtocol {
+final class ImagesListViewPresenter: ImagesListViewPresenterProtocol {
     weak var view: ImagesListViewControllerProtocol?
     let imagesListService = ImagesListService.shared
     private var imagesListServiceObserver: NSObjectProtocol?

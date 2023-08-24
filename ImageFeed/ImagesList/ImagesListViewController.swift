@@ -124,7 +124,7 @@ extension ImagesListViewController: ImagesListDelegate {
     }
     
     func showLikeErrorAlert(with error: Error)  {
-        let alert = alertManager.likeAlert(with: Error.self as! Error)
+        let alert = alertManager.likeAlert(with: error)
         present(alert, animated: true, completion: nil)
     }
 }
