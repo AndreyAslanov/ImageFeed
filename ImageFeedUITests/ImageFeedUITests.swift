@@ -95,7 +95,7 @@ class Image_FeedUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["\(fullName)"].exists)
         XCTAssertTrue(app.staticTexts["\(userName)"].exists)
         
-        app.buttons["logout_button"].tap()
+        app.buttons["logout_button"].tap()                      //кнопка выхода из профиля
         
         app.alerts["Пока, пока!"].scrollViews.otherElements.buttons["Да"].tap()
     }
