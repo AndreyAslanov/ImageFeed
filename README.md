@@ -4,8 +4,17 @@
 
 ## **Скриншоты**
 
+<img width="433" alt="Снимок экрана 2024-01-02 в 04.45.19" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.45.19.png">
 
+<img width="429" alt="Снимок экрана 2024-01-02 в 04.47.08" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.47.08.png">
 
+<img width="433" alt="Снимок экрана 2024-01-02 в 04.47.25" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.47.25.png">
+
+<img width="427" alt="Снимок экрана 2024-01-02 в 04.47.30" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.47.30.png">
+
+<img width="429" alt="Снимок экрана 2024-01-02 в 04.46.26" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.46.26.png">
+
+<img width="433" alt="Снимок экрана 2024-01-02 в 04.46.31" src="https://github.com/AndreyAslanov/ImageFeed/blob/59354d20e73958308fa49c8f414744b107be6c49/Screenshots/Simulator%20Screenshot%20-%20iPhone%2014%20Pro%20-%202024-01-02%20at%2004.46.31.png">
 
 ## Инструкция
 
